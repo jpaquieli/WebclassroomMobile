@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
-import { authService } from "../services/authService";
+import { api } from "../services/api"; // seu api.ts com Axios
 
 export type User = {
   username: string;
@@ -11,45 +11,61 @@ type AuthContextType = {
   token: string | null;
   user: User | null;
   login: (username: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
+  logout: () => void;
   loading: boolean;
+};
+
+type AuthProviderProps = {
+  children: ReactNode;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children }: AuthProviderProps) {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Carrega token armazenado no app
   useEffect(() => {
-    const loadStoredData = async () => {
-      const savedToken = await AsyncStorage.getItem("token");
-      if (savedToken) {
-        try {
-          const payload = JSON.parse(atob(savedToken.split(".")[1]));
+    const loadToken = async () => {
+      try {
+        const storedToken = await AsyncStorage.getItem("token");
+        if (storedToken) {
+          setToken(storedToken);
+          const payload = JSON.parse(atob(storedToken.split(".")[1]));
           setUser({ username: payload.username, role: payload.role });
-          setToken(savedToken);
-        } catch {
-          await AsyncStorage.removeItem("token");
         }
+      } catch (error) {
+        console.error("Erro ao carregar token:", error);
+        setToken(null);
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
-    loadStoredData();
+    loadToken();
   }, []);
 
+  // Função de login
   const login = async (username: string, password: string) => {
-    const data = await authService.login(username, password);
-    const token = data.token;
+    try {
+      const res = await api.post<{ token: string }>("/user/signin", { username, password });
 
-    await AsyncStorage.setItem("token", token);
-    const payload = JSON.parse(atob(token.split(".")[1]));
+      const token = res.data.token;
+      setToken(token);
+      await AsyncStorage.setItem("token", token);
 
-    setToken(token);
-    setUser({ username: payload.username, role: payload.role });
+      // Decodifica o token JWT para obter o usuário
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      setUser({ username: payload.username, role: payload.role });
+    } catch (error: any) {
+      console.error("Erro de login:", error.message);
+      throw new Error(error.message || "Usuário ou senha inválidos");
+    }
   };
 
+  // Logout limpa tudo
   const logout = async () => {
     await AsyncStorage.removeItem("token");
     setToken(null);

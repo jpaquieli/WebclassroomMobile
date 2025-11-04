@@ -1,31 +1,31 @@
-// src/services/api.ts
+import axios from "axios";
 
-export const api = {
-    async request(path: string, options?: RequestInit) {
-      const baseUrl = "http://localhost:3000/v1"; // ou o IP da sua máquina/emulador
-  
-      const response = await fetch(baseUrl + path, {
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",  // <== CORREÇÃO AQUI
-          ...(options?.headers || {}),
-        },
-        ...options,
-      });
-  
-      if (!response.ok) {
-        let errorMessage = `HTTP error! status: ${response.status}`;
-        try {
-          const errorData = await response.json();
-          if (errorData.message) {
-            errorMessage = errorData.message;
-          }
-        } catch {
-          // não conseguiu ler o JSON do erro
-        }
-        throw new Error(errorMessage);
-      }
-  
-      return await response.json();
-    },
-  };
+// Cria uma instância configurada do Axios
+export const api = axios.create({
+  baseURL: "http://localhost:3000/v1", // ajuste se necessário
+  headers: {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+  },
+});
+
+// Interceptor de resposta — trata erros globais
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    let message = "Erro desconhecido no servidor";
+
+    if (error.response) {
+      // Erro vindo da API
+      message = error.response.data?.message || `Erro: ${error.response.status}`;
+    } else if (error.request) {
+      // Nenhuma resposta recebida
+      message = "Não foi possível conectar ao servidor.";
+    } else {
+      // Erro ao configurar a requisição
+      message = error.message;
+    }
+
+    return Promise.reject(new Error(message));
+  }
+);
