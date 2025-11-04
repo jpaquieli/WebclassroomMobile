@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16
+    container_name: meu-postgres
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  app:
+    build: .
+    container_name: webclassroom
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+    command: >
+      sh -c "
+        echo 'Aguardando o banco subir...';
+        until nc -z db 5432; do
+          echo 'Banco ainda não disponível...';
+          sleep 2;
+        done;
+        echo 'Banco disponível, iniciando app';
+        npm start
+      "
+
+volumes:
+  postgres_data:
