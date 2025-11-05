@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -5,14 +6,17 @@ import {
   RefreshControl,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
-import { getPosts, Post } from "../services/postService"; // ajuste o caminho se necessário
+import { SafeAreaView } from "react-native-safe-area-context";
+import { getPosts, Post } from "../services/postService";
 
 export default function HomeScreen() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const router = useRouter();
 
   const fetchPosts = async () => {
     try {
@@ -38,47 +42,76 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={{ marginTop: 10 }}>Carregando posts...</Text>
-      </View>
+      <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color="#007AFF" />
+          <Text style={{ marginTop: 10 }}>Carregando posts...</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   if (posts.length === 0) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.emptyText}>Nenhum post encontrado</Text>
-      </View>
+      <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+        <View style={styles.center}>
+          <Text style={styles.emptyText}>Nenhum post encontrado</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={posts}
-        keyExtractor={(item) => item.id.toString()}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.content}>{item.content}</Text>
-            <Text style={styles.author}>por {item.author}</Text>
-            {item.createdAt && (
-              <Text style={styles.date}>
-                {new Date(item.createdAt).toLocaleDateString("pt-BR")}
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+      <View style={styles.container}>
+        <FlatList
+          data={posts}
+          keyExtractor={(item) => item.id.toString()}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.card}
+              activeOpacity={0.8}
+              onPress={() =>
+                router.push({
+                  pathname: "/post/[id]" as any,
+                  params: {
+                    id: item.id.toString(),
+                    title: item.title,
+                    content: item.content,
+                    author: item.author,
+                    createdAt: item.createdAt,
+                  },
+                })
+              }
+            >
+              <Text style={styles.title}>{item.title}</Text>
+              <Text style={styles.contentPreview} numberOfLines={2}>
+                {item.content}
               </Text>
-            )}
-          </View>
-        )}
-      />
-    </View>
+              <View style={styles.footer}>
+                <Text style={styles.author}>por {item.author}</Text>
+                {item.createdAt && (
+                  <Text style={styles.date}>
+                    {new Date(item.createdAt).toLocaleDateString("pt-BR")}
+                  </Text>
+                )}
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#F9F9F9",
+  },
   container: {
     flex: 1,
     backgroundColor: "#F9F9F9",
@@ -93,12 +126,12 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#FFFFFF",
     padding: 16,
-    borderRadius: 12,
-    marginBottom: 10,
+    borderRadius: 14,
+    marginBottom: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
     elevation: 2,
   },
   title: {
@@ -107,10 +140,10 @@ const styles = StyleSheet.create({
     color: "#222",
     marginBottom: 6,
   },
-  content: {
+  contentPreview: {
     fontSize: 14,
     color: "#555",
-    marginBottom: 8,
+    marginBottom: 10,
   },
   author: {
     fontSize: 13,
@@ -119,8 +152,11 @@ const styles = StyleSheet.create({
   date: {
     fontSize: 12,
     color: "#aaa",
-    marginTop: 4,
     textAlign: "right",
+  },
+  footer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   emptyText: {
     fontSize: 16,
