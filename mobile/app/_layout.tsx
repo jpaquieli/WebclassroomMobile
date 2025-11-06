@@ -1,32 +1,36 @@
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { Slot } from "expo-router";
+import { Stack } from "expo-router";
 import React from "react";
-import { ActivityIndicator, View } from "react-native";
-
-function Root() {
-  const { token, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
-
-  // Se não tem token, renderiza rota /login
-  if (!token) {
-    return <Slot />; // rota login
-  }
-
-  // Se tem token, renderiza /home e demais rotas autenticadas
-  return <Slot />;
-}
+// 1. IMPORTANTE: Precisamos do AuthProvider para o app/index.tsx funcionar
+import { AuthProvider } from "../contexts/AuthContext";
 
 export default function RootLayout() {
   return (
+    // 2. O PROVIDER DEVE ENVOLVER O STACK
     <AuthProvider>
-      <Root />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          animation: "slide_from_right",
+        }}
+      >
+        {/* Abas principais (Rotas protegidas) */}
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+
+        {/* 3. ADICIONADO: Tela de Login (Rota pública) */}
+        {/* O index.tsx redireciona para 'login', o Stack precisa saber que essa tela existe. */}
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+
+        {/* Tela de detalhes de post (provavelmente protegida) */}
+        <Stack.Screen
+          name="post/[id]"
+          options={{
+            headerShown: true,
+            headerTitle: "Detalhes do Post",
+            headerBackTitle: "Voltar",
+            animation: "slide_from_right",
+          }}
+        />
+      </Stack>
     </AuthProvider>
   );
 }

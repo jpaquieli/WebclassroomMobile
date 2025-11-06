@@ -1,28 +1,13 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import React from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function PostDetailScreen() {
-  const { id, title, content, author, createdAt } = useLocalSearchParams();
-  const router = useRouter();
+  const { title, content, author, createdAt } = useLocalSearchParams();
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      {/* Botão Voltar */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          activeOpacity={0.7}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.backText}>◀ Voltar</Text>
-        </TouchableOpacity>
-      </View>
-
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>{title}</Text>
-        <Text style={styles.id}>ID: {id}</Text>
         <Text style={styles.author}>por {author}</Text>
         {createdAt && (
           <Text style={styles.date}>
@@ -32,7 +17,6 @@ export default function PostDetailScreen() {
         <View style={styles.separator} />
         <Text style={styles.content}>{content}</Text>
       </ScrollView>
-    </SafeAreaView>
   );
 }
 
