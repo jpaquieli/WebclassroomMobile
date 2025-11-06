@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
@@ -6,6 +7,7 @@ import {
   RefreshControl,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -14,6 +16,8 @@ import { getPosts, Post } from "../services/postService";
 
 export default function HomeScreen() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
@@ -23,6 +27,7 @@ export default function HomeScreen() {
       setLoading(true);
       const data = await getPosts();
       setPosts(data);
+      setFilteredPosts(data);
     } catch (error: any) {
       console.error("Erro ao carregar posts:", error.message);
     } finally {
@@ -40,6 +45,15 @@ export default function HomeScreen() {
     fetchPosts();
   }, []);
 
+  useEffect(() => {
+    const filtered = posts.filter(
+      (p) =>
+        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.content.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredPosts(filtered);
+  }, [searchQuery, posts]);
+
   if (loading) {
     return (
       <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
@@ -51,11 +65,23 @@ export default function HomeScreen() {
     );
   }
 
-  if (posts.length === 0) {
+  if (filteredPosts.length === 0) {
     return (
       <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-        <View style={styles.center}>
-          <Text style={styles.emptyText}>Nenhum post encontrado</Text>
+        <View style={styles.container}>
+          <View style={styles.searchContainer}>
+            <Ionicons name="search" size={20} color="#999" style={styles.icon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Buscar posts..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholderTextColor="#aaa"
+            />
+          </View>
+          <View style={styles.center}>
+            <Text style={styles.emptyText}>Nenhum post encontrado</Text>
+          </View>
         </View>
       </SafeAreaView>
     );
@@ -64,8 +90,19 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <View style={styles.container}>
+        <View style={styles.searchContainer}>
+          <Ionicons name="search" size={20} color="#999" style={styles.icon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Buscar posts..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholderTextColor="#aaa"
+          />
+        </View>
+
         <FlatList
-          data={posts}
+          data={filteredPosts}
           keyExtractor={(item) => item.id.toString()}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -122,6 +159,28 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFF",
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    marginBottom: 14,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  icon: {
+    marginRight: 6,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: "#333",
   },
   card: {
     backgroundColor: "#FFFFFF",
