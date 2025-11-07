@@ -5,14 +5,10 @@ import { ActivityIndicator, View } from "react-native";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Index() {
-  // 1. Usamos 'token' e 'loading' EXATAMENTE como vêm do seu contexto.
-  const { token, loading } = useAuth(); 
+  const { loading } = useAuth(); 
   const rootNavigationState = useRootNavigationState();
-
-  // 2. Condição de PRONTO: O roteador está montado E o carregamento do auth terminou (loading === false)
   const isReady = rootNavigationState?.key && !loading;
 
-  // 3. 🔄 Mostra o loader se o roteador OU a autenticação estiverem carregando.
   if (!isReady) {
     return (
       <View
@@ -27,8 +23,5 @@ export default function Index() {
       </View>
     );
   }
-
-  // 4. Quando estiver pronto, redireciona usando <Redirect /> (resolve o ERROR)
-  const route = token ? "/home" : "/login";
-  return <Redirect href={route} />;
+  return <Redirect href={"/login"} />;
 }

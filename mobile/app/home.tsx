@@ -11,7 +11,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { getPosts, Post } from "../services/postService";
 
 export default function HomeScreen() {
@@ -56,19 +55,24 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
         <View style={styles.center}>
           <ActivityIndicator size="large" color="#007AFF" />
           <Text style={{ marginTop: 10 }}>Carregando posts...</Text>
         </View>
-      </SafeAreaView>
     );
   }
 
   if (filteredPosts.length === 0) {
     return (
-      <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
         <View style={styles.container}>
+          <TouchableOpacity
+            style={styles.adminButton}
+            onPress={() => router.push("/admin" as never)}
+          >
+            <Ionicons name="settings-outline" size={18} color="#fff" />
+            <Text style={styles.adminButtonText}>Painel Administrativo</Text>
+          </TouchableOpacity>
+
           <View style={styles.searchContainer}>
             <Ionicons name="search" size={20} color="#999" style={styles.icon} />
             <TextInput
@@ -83,13 +87,20 @@ export default function HomeScreen() {
             <Text style={styles.emptyText}>Nenhum post encontrado</Text>
           </View>
         </View>
-      </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <View style={styles.container}>
+        {/* Botão para ir ao painel administrativo */}
+        <TouchableOpacity
+          style={styles.adminButton}
+          onPress={() => router.push("/admin" as never)}
+        >
+          <Ionicons name="settings-outline" size={18} color="#fff" />
+          <Text style={styles.adminButtonText}>Painel Administrativo</Text>
+        </TouchableOpacity>
+
         <View style={styles.searchContainer}>
           <Ionicons name="search" size={20} color="#999" style={styles.icon} />
           <TextInput
@@ -140,7 +151,6 @@ export default function HomeScreen() {
           )}
         />
       </View>
-    </SafeAreaView>
   );
 }
 
@@ -159,6 +169,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  adminButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-end",
+    backgroundColor: "#007AFF",
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 10,
+  },
+  adminButtonText: {
+    color: "#fff",
+    marginLeft: 6,
+    fontWeight: "600",
   },
   searchContainer: {
     flexDirection: "row",
