@@ -2,14 +2,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    RefreshControl,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { deletePost, getPosts, Post } from "../../services/postService";
@@ -82,7 +82,7 @@ export default function AdminScreen() {
         </Text>
         <TouchableOpacity
           style={[styles.button, { marginTop: 20 }]}
-          onPress={() => router.push("/post/create" as never)}
+          onPress={() => router.push("/post/create/create" as never)}
         >
           <Text style={styles.buttonText}>Criar nova postagem</Text>
         </TouchableOpacity>
@@ -96,7 +96,7 @@ export default function AdminScreen() {
         <Text style={styles.header}>Painel Administrativo</Text>
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => router.push("/post/create" as never)}
+          onPress={() => router.push("/post/create/create" as never)}
         >
           <Ionicons name="add-circle" size={28} color="#007AFF" />
         </TouchableOpacity>

@@ -1,10 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { jwtDecode } from "jwt-decode";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
-import { api } from "../services/api"; // seu api.ts com Axios
+import { api } from "../services/api";
 
 export type User = {
   username: string;
-  role: string;
+  role: string; // aluno | professor
 };
 
 type AuthContextType = {
@@ -13,6 +14,7 @@ type AuthContextType = {
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
+  isProfessor: boolean;
 };
 
 type AuthProviderProps = {
@@ -26,63 +28,67 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Carrega token armazenado no app
+  // Carrega token armazenado
   useEffect(() => {
     const loadToken = async () => {
       try {
         const storedToken = await AsyncStorage.getItem("token");
         if (storedToken) {
           setToken(storedToken);
-          const payload = JSON.parse(atob(storedToken.split(".")[1]));
+
+          const payload: any = jwtDecode(storedToken);
           setUser({ username: payload.username, role: payload.role });
         }
       } catch (error) {
         console.error("Erro ao carregar token:", error);
-        setToken(null);
-        setUser(null);
       } finally {
         setLoading(false);
       }
     };
+
     loadToken();
   }, []);
 
-  // Função de login
+  // LOGIN
   const login = async (username: string, password: string) => {
     try {
-      const res = await api.post<{ token: string }>("/user/signin", { username, password });
+      const res = await api.post<{ token: string }>("/user/signin", {
+        username,
+        password,
+      });
 
       const token = res.data.token;
-      setToken(token);
       await AsyncStorage.setItem("token", token);
+      setToken(token);
 
-      // Decodifica o token JWT para obter o usuário
-      const payload = JSON.parse(atob(token.split(".")[1]));
+      const payload: any = jwtDecode(token);
       setUser({ username: payload.username, role: payload.role });
     } catch (error: any) {
-      console.error("Erro de login:", error.message);
+      console.error("Erro de login:", error);
       throw new Error(error.message || "Usuário ou senha inválidos");
     }
   };
 
-  // Logout limpa tudo
+  // LOGOUT
   const logout = async () => {
     await AsyncStorage.removeItem("token");
     setToken(null);
     setUser(null);
   };
 
+  const isProfessor = user?.role === "professor";
+
   return (
-    <AuthContext.Provider value={{ token, user, login, logout, loading }}>
+    <AuthContext.Provider
+      value={{ token, user, login, logout, loading, isProfessor }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth deve ser usado dentro de um AuthProvider");
-  }
-  return context;
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth deve ser usado dentro de AuthProvider");
+  return ctx;
 };

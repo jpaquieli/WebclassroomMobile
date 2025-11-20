@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useAuth } from "../contexts/AuthContext"; // 👈 IMPORTANTE
 import { getPosts, Post } from "../services/postService";
 
 export default function HomeScreen() {
@@ -20,6 +21,8 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
+
+  const { isProfessor } = useAuth(); // 👈 SOMENTE AQUI A GENTE LÊ A ROLE
 
   const fetchPosts = async () => {
     try {
@@ -55,51 +58,25 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={{ marginTop: 10 }}>Carregando posts...</Text>
-        </View>
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#007AFF" />
+        <Text style={{ marginTop: 10 }}>Carregando posts...</Text>
+      </View>
     );
   }
 
   if (filteredPosts.length === 0) {
     return (
-        <View style={styles.container}>
+      <View style={styles.container}>
+        {isProfessor && (
           <TouchableOpacity
             style={styles.adminButton}
-            onPress={() => router.push("/admin" as never)}
+            onPress={() => router.push("/admin")}
           >
             <Ionicons name="settings-outline" size={18} color="#fff" />
             <Text style={styles.adminButtonText}>Painel Administrativo</Text>
           </TouchableOpacity>
-
-          <View style={styles.searchContainer}>
-            <Ionicons name="search" size={20} color="#999" style={styles.icon} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Buscar posts..."
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              placeholderTextColor="#aaa"
-            />
-          </View>
-          <View style={styles.center}>
-            <Text style={styles.emptyText}>Nenhum post encontrado</Text>
-          </View>
-        </View>
-    );
-  }
-
-  return (
-      <View style={styles.container}>
-        {/* Botão para ir ao painel administrativo */}
-        <TouchableOpacity
-          style={styles.adminButton}
-          onPress={() => router.push("/admin" as never)}
-        >
-          <Ionicons name="settings-outline" size={18} color="#fff" />
-          <Text style={styles.adminButtonText}>Painel Administrativo</Text>
-        </TouchableOpacity>
+        )}
 
         <View style={styles.searchContainer}>
           <Ionicons name="search" size={20} color="#999" style={styles.icon} />
@@ -111,8 +88,37 @@ export default function HomeScreen() {
             placeholderTextColor="#aaa"
           />
         </View>
+        <View style={styles.center}>
+          <Text style={styles.emptyText}>Nenhum post encontrado</Text>
+        </View>
+      </View>
+    );
+  }
 
-        <FlatList
+  return (
+    <View style={styles.container}>
+      {isProfessor && (
+        <TouchableOpacity
+          style={styles.adminButton}
+          onPress={() => router.push("/admin")}
+        >
+          <Ionicons name="settings-outline" size={18} color="#fff" />
+          <Text style={styles.adminButtonText}>Painel Administrativo</Text>
+        </TouchableOpacity>
+      )}
+
+      <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color="#999" style={styles.icon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar posts..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholderTextColor="#aaa"
+        />
+      </View>
+
+      <FlatList
           data={filteredPosts}
           keyExtractor={(item) => item.id.toString()}
           refreshControl={
@@ -236,7 +242,6 @@ const styles = StyleSheet.create({
   date: {
     fontSize: 12,
     color: "#aaa",
-    textAlign: "right",
   },
   footer: {
     flexDirection: "row",
