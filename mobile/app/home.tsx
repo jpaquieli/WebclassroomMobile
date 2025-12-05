@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   FlatList,
   RefreshControl,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -97,15 +98,37 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      {isProfessor && (
-        <TouchableOpacity
-          style={styles.adminButton}
-          onPress={() => router.push("/admin")}
-        >
-          <Ionicons name="settings-outline" size={18} color="#fff" />
-          <Text style={styles.adminButtonText}>Painel Administrativo</Text>
-        </TouchableOpacity>
-      )}
+{isProfessor && (
+  <ScrollView
+    horizontal
+    showsHorizontalScrollIndicator={false}
+    contentContainerStyle={styles.adminButtonsContainer}
+  >
+    <TouchableOpacity
+      style={styles.adminButton}
+      onPress={() => router.push("/admin")}
+    >
+      <Ionicons name="settings-outline" size={20} color="#fff" />
+      <Text style={styles.adminButtonText}>Posts</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity
+      style={styles.adminButton}
+      onPress={() => router.push("/adminProfessor")}
+    >
+      <Ionicons name="school-outline" size={20} color="#fff" />
+      <Text style={styles.adminButtonText}>Professores</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity
+      style={styles.adminButton}
+      onPress={() => router.push("/")}
+    >
+      <Ionicons name="people-outline" size={20} color="#fff" />
+      <Text style={styles.adminButtonText}>Alunos</Text>
+    </TouchableOpacity>
+  </ScrollView>
+)}
 
       <View style={styles.searchContainer}>
         <Ionicons name="search" size={20} color="#999" style={styles.icon} />
@@ -161,58 +184,77 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#F9F9F9",
-  },
   container: {
     flex: 1,
     backgroundColor: "#F9F9F9",
     paddingHorizontal: 16,
     paddingTop: 10,
   },
+
   center: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-  adminButton: {
+
+  adminButtonsContainer: {
     flexDirection: "row",
     alignItems: "center",
-    alignSelf: "flex-end",
-    backgroundColor: "#007AFF",
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginBottom: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 2,
   },
+
+  adminButton: {
+    backgroundColor: "#007AFF",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginRight: 10,
+
+    width: 150,
+    height: 45,
+
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+
   adminButtonText: {
     color: "#fff",
     marginLeft: 6,
+    fontSize: 15,
     fontWeight: "600",
   },
+
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#FFF",
     borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     marginBottom: 14,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
     elevation: 1,
   },
+
   icon: {
-    marginRight: 6,
+    marginRight: 8,
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
     color: "#333",
   },
+
   card: {
     backgroundColor: "#FFFFFF",
     padding: 16,
@@ -224,9 +266,10 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 2,
   },
+
   title: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: "700",
     color: "#222",
     marginBottom: 6,
   },
@@ -247,6 +290,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
+
   emptyText: {
     fontSize: 16,
     color: "#666",
