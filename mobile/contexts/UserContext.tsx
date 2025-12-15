@@ -1,21 +1,21 @@
 // contexts/UsersContext.tsx
 import React, {
-    createContext,
-    ReactNode,
-    useCallback,
-    useContext,
-    useEffect,
-    useState,
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
   
   import {
-    createAluno as apiCreateAluno,
-    createProfessor as apiCreateProfessor,
-    deleteUser as apiDeleteUser,
-    editUser as apiEditUser,
-    findAllAluno as apiFindAllAluno,
-    findAllProfessor as apiFindAllProfessor,
-    type User,
+  createAluno as apiCreateAluno,
+  createProfessor as apiCreateProfessor,
+  deleteUser as apiDeleteUser,
+  editUser as apiEditUser,
+  findAllAluno as apiFindAllAluno,
+  findAllProfessor as apiFindAllProfessor,
+  type User,
 } from "../services/userService";
   
   import { useAuth } from "./AuthContext";

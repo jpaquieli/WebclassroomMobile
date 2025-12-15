@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useAuth } from "../contexts/AuthContext"; // 👈 IMPORTANTE
+import { useAuth } from "../contexts/AuthContext";
 import { getPosts, Post } from "../services/postService";
 
 export default function HomeScreen() {
@@ -23,7 +23,7 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
 
-  const { isProfessor } = useAuth(); // 👈 SOMENTE AQUI A GENTE LÊ A ROLE
+  const { isProfessor } = useAuth();
 
   const fetchPosts = async () => {
     try {
@@ -122,7 +122,7 @@ export default function HomeScreen() {
 
     <TouchableOpacity
       style={styles.adminButton}
-      onPress={() => router.push("/")}
+      onPress={() => router.push("/adminAluno")}
     >
       <Ionicons name="people-outline" size={20} color="#fff" />
       <Text style={styles.adminButtonText}>Alunos</Text>
