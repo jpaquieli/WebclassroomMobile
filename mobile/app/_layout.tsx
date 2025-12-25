@@ -17,16 +17,6 @@ export default function RootLayout() {
           <Stack.Screen name="login" options={{ headerShown: false }} />
 
           <Stack.Screen
-            name="post/[id]"
-            options={{
-              headerShown: true,
-              headerTitle: "Detalhes do Post",
-              headerBackTitle: "Voltar",
-              animation: "slide_from_right",
-            }}
-          />
-
-          <Stack.Screen
             name="adminProfessor"
             options={{
               headerShown: true,
