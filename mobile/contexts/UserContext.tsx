@@ -37,7 +37,9 @@ const UsersContext = createContext<UsersContextType | undefined>(undefined);
 
 export const useUsers = () => {
   const ctx = useContext(UsersContext);
-  if (!ctx) throw new Error("useUsers deve ser usado dentro de UsersProvider");
+  if (!ctx) {
+    throw new Error("useUsers deve ser usado dentro de UsersProvider");
+  }
   return ctx;
 };
 
@@ -47,7 +49,12 @@ export function UsersProvider({ children }: { children: ReactNode }) {
   const [professores, setProfessores] = useState<User[]>([]);
   const [alunos, setAlunos] = useState<User[]>([]);
 
+  // -----------------------------
+  // FETCH PROFESSORES
+  // -----------------------------
   const fetchProfessores = useCallback(async () => {
+    if (!isProfessor) return;
+
     try {
       const data = await apiFindAllProfessor();
       setProfessores(Array.isArray(data) ? data : []);
@@ -55,9 +62,14 @@ export function UsersProvider({ children }: { children: ReactNode }) {
       console.error("Erro ao buscar professores:", err);
       setProfessores([]);
     }
-  }, []);
+  }, [isProfessor]);
 
+  // -----------------------------
+  // FETCH ALUNOS
+  // -----------------------------
   const fetchAlunos = useCallback(async () => {
+    if (!isProfessor) return;
+
     try {
       const data = await apiFindAllAluno();
       setAlunos(Array.isArray(data) ? data : []);
@@ -65,60 +77,94 @@ export function UsersProvider({ children }: { children: ReactNode }) {
       console.error("Erro ao buscar alunos:", err);
       setAlunos([]);
     }
-  }, []);
+  }, [isProfessor]);
 
+  // -----------------------------
+  // CREATE PROFESSOR
+  // (garante username no estado local)
+  // -----------------------------
   const createProfessor = useCallback(
     async (payload: Omit<User, "id" | "role">) => {
       const newUser = await apiCreateProfessor(payload);
-      setProfessores((prev) => [...prev, newUser]);
+
+      if (newUser) {
+        setProfessores((prev) => [...prev, newUser]);
+      }
     },
     []
   );
 
+  // -----------------------------
+  // CREATE ALUNO
+  // -----------------------------
   const createAluno = useCallback(
     async (payload: Omit<User, "id" | "role">) => {
       const newUser = await apiCreateAluno(payload);
-      setAlunos((prev) => [...prev, newUser]);
+
+      if (newUser) {
+        setAlunos((prev) => [...prev, newUser]);
+      }
     },
     []
   );
 
+  // -----------------------------
+  // UPDATE USER
+  // (não sobrescreve campos com undefined)
+  // -----------------------------
   const updateUser = useCallback(async (id: number, data: Partial<User>) => {
     const updated = await apiEditUser(id, data);
 
-    setProfessores((prev) =>
-      prev.map((u) => {
-        if (u.id !== id) return u;
+    if (!updated) return;
 
-        return {
-          ...u,
-          ...(updated.username !== undefined && { username: updated.username }),
-          ...(updated.password !== undefined && { password: updated.password }),
-          ...(updated.role !== undefined && { role: updated.role }),
-        };
-      })
+    setProfessores((prev) =>
+      prev.map((u) =>
+        u.id === id
+          ? {
+              ...u,
+              ...(updated.username !== undefined && {
+                username: updated.username,
+              }),
+              ...(updated.password !== undefined && {
+                password: updated.password,
+              }),
+              ...(updated.role !== undefined && { role: updated.role }),
+            }
+          : u
+      )
     );
 
     setAlunos((prev) =>
-      prev.map((u) => {
-        if (u.id !== id) return u;
-
-        return {
-          ...u,
-          ...(updated.username !== undefined && { username: updated.username }),
-          ...(updated.password !== undefined && { password: updated.password }),
-          ...(updated.role !== undefined && { role: updated.role }),
-        };
-      })
+      prev.map((u) =>
+        u.id === id
+          ? {
+              ...u,
+              ...(updated.username !== undefined && {
+                username: updated.username,
+              }),
+              ...(updated.password !== undefined && {
+                password: updated.password,
+              }),
+              ...(updated.role !== undefined && { role: updated.role }),
+            }
+          : u
+      )
     );
   }, []);
 
+  // -----------------------------
+  // DELETE USER
+  // -----------------------------
   const deleteUser = useCallback(async (id: number) => {
     await apiDeleteUser(id);
+
     setProfessores((prev) => prev.filter((u) => u.id !== id));
     setAlunos((prev) => prev.filter((u) => u.id !== id));
   }, []);
 
+  // -----------------------------
+  // LOAD DATA ON LOGIN
+  // -----------------------------
   useEffect(() => {
     if (!user) {
       setProfessores([]);

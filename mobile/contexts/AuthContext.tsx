@@ -5,7 +5,7 @@ import { api } from "../services/api";
 
 export type User = {
   username: string;
-  role: string; // aluno | professor
+  role: string;
 };
 
 type AuthContextType = {
@@ -28,7 +28,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Carrega token armazenado
   useEffect(() => {
     const loadToken = async () => {
       try {
@@ -49,7 +48,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     loadToken();
   }, []);
 
-  // LOGIN
   const login = async (username: string, password: string) => {
     try {
       const res = await api.post<{ token: string }>("/user/signin", {
@@ -68,8 +66,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       throw new Error(error.message || "Usuário ou senha inválidos");
     }
   };
-
-  // LOGOUT
+  
   const logout = async () => {
     await AsyncStorage.removeItem("token");
     setToken(null);

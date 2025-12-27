@@ -23,13 +23,12 @@ export default function EditAlunoScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // --- Carrega sempre o dado REAL do contexto ---
   useEffect(() => {
     const alun = alunos.find((p) => p.id === Number(id));
 
     if (alun) {
       setUsername(alun.username);
-      setPassword(""); // não exibe senha, apenas permite trocar
+      setPassword("");
     }
 
     setLoading(false);
@@ -44,7 +43,6 @@ export default function EditAlunoScreen() {
         password: password || undefined,
       });
 
-      // 🔥 Atualiza lista REAL após editar
       await fetchAlunos();
 
       Alert.alert("Sucesso", "Aluno atualizado!");

@@ -1,7 +1,6 @@
 import { Redirect, useRootNavigationState } from "expo-router";
 import React from "react";
 import { ActivityIndicator, View } from "react-native";
-// Importamos o seu hook que JÁ FUNCIONA
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Index() {

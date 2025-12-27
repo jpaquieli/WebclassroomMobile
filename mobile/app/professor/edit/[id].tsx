@@ -1,4 +1,3 @@
-// app/professor/edit/[id].tsx
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -24,13 +23,12 @@ export default function EditProfessorScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // --- Carrega sempre o dado REAL do contexto ---
   useEffect(() => {
     const prof = professores.find((p) => p.id === Number(id));
 
     if (prof) {
       setUsername(prof.username);
-      setPassword(""); // não exibe senha, apenas permite trocar
+      setPassword("");
     }
 
     setLoading(false);
@@ -45,7 +43,6 @@ export default function EditProfessorScreen() {
         password: password || undefined,
       });
 
-      // 🔥 Atualiza lista REAL após editar
       await fetchProfessores();
 
       Alert.alert("Sucesso", "Professor atualizado!");

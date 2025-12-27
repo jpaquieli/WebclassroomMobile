@@ -33,7 +33,7 @@ export default function CreateProfessorScreen() {
 
       await createProfessor({
         username,
-        password, // 👈 senha OBRIGATÓRIA na criação
+        password,
       });
 
       Alert.alert("Sucesso", "Professor criado com sucesso!");

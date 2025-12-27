@@ -1,14 +1,13 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
 import {
-    createPost as apiCreatePost,
-    deletePost as apiDeletePost,
-    getPost as apiGetPost,
-    getPosts as apiGetPosts,
-    updatePost as apiUpdatePost,
+  createPost as apiCreatePost,
+  deletePost as apiDeletePost,
+  getPost as apiGetPost,
+  getPosts as apiGetPosts,
+  updatePost as apiUpdatePost,
 } from "../services/postService.js";
 import { useAuth } from "./AuthContext.js";
 
-// 🔹 Tipo de um post
 export type Post = {
   id: number;
   title: string;
@@ -18,7 +17,6 @@ export type Post = {
   updatedAt?: string;
 };
 
-// 🔹 Tipo do contexto
 type PostsContextType = {
   posts: Post[];
   fetchPosts: () => Promise<void>;
@@ -28,15 +26,12 @@ type PostsContextType = {
   deletePost: (id: number) => Promise<void>;
 };
 
-// 🔹 Props do provider
 type PostsProviderProps = {
   children: ReactNode;
 };
 
-// Contexto
 const PostsContext = createContext<PostsContextType | undefined>(undefined);
 
-// Hook seguro
 export const usePosts = (): PostsContextType => {
   const context = useContext(PostsContext);
   if (!context) {
@@ -49,7 +44,6 @@ export function PostsProvider({ children }: PostsProviderProps) {
   const { user } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
 
-  // 🔹 Pega todos os posts
   const fetchPosts = useCallback(async () => {
     try {
       const data = await apiGetPosts();
@@ -59,7 +53,6 @@ export function PostsProvider({ children }: PostsProviderProps) {
     }
   }, []);
 
-  // 🔹 Pega um post específico
   const getPost = useCallback(
     async (id: number) => {
       const existing = posts.find((p) => p.id === id);
@@ -76,7 +69,6 @@ export function PostsProvider({ children }: PostsProviderProps) {
     [posts]
   );
 
-  // 🔹 Cria um post
   const createPost = async (post: Omit<Post, "id">) => {
     try {
       const newPost = await apiCreatePost(post);
@@ -86,7 +78,6 @@ export function PostsProvider({ children }: PostsProviderProps) {
     }
   };
 
-  // 🔹 Atualiza um post
   const updatePost = async (id: number, updatedData: Partial<Post>) => {
     try {
       await apiUpdatePost(id, updatedData);
@@ -98,7 +89,6 @@ export function PostsProvider({ children }: PostsProviderProps) {
     }
   };
 
-  // 🔹 Deleta um post
   const deletePost = async (id: number) => {
     try {
       await apiDeletePost(id);
@@ -108,7 +98,6 @@ export function PostsProvider({ children }: PostsProviderProps) {
     }
   };
 
-  // 🔹 Busca posts quando o usuário estiver logado
   useEffect(() => {
     if (user) fetchPosts();
   }, [user, fetchPosts]);
