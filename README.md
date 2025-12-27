@@ -13,18 +13,18 @@ Certifique-se de que a API backend esteja rodando e acessível no endpoint confi
 ```bash
 # instalar dependências
 npm install
-```bash
+```
 
 ```bash
 # iniciar o backend
 cd backend
 npm run start:dev
-```bash
+```
 
 ```bash
 # iniciar a aplicação mobile
 npx expo start
-```bash
+```
 
 ---
 
